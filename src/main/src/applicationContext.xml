@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+  <!--1 引入属性文件，在配置中占位使用 -->
+  <context:property-placeholder location="classpath:db.properties" />
+
+  <!--2 配置C3P0数据源 -->
+  <bean id="datasource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+    <!--驱动类名 -->
+    <property name="driverClass" value="${jdbc.driver}" />
+    <!-- url -->
+    <property name="jdbcUrl" value="${jdbc.url}" />
+    <!-- 用户名 -->
+    <property name="user" value="${jdbc.uid}" />
+    <!-- 密码 -->
+    <property name="password" value="${jdbc.pwd}" />
+    <!-- 当连接池中的连接耗尽的时候c3p0一次同时获取的连接数  -->
+    <property name="acquireIncrement" value="5"></property>
+    <!-- 初始连接池大小 -->
+    <property name="initialPoolSize" value="10"></property>
+    <!-- 连接池中连接最小个数 -->
+    <property name="minPoolSize" value="5"></property>
+    <!-- 连接池中连接最大个数 -->
+    <property name="maxPoolSize" value="20"></property>
+  </bean>
+
+  <!--3 会话工厂bean sqlSessionFactoryBean -->
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <!-- 数据源 -->
+    <property name="dataSource" ref="datasource"></property>
+    <!-- mybatis配置文件 -->
+    <property name="configLocation" value="classpath:mybatisConfig.xml"></property>
+    <!-- 别名 -->
+    <property name="typeAliasesPackage" value="com.uv.entity"></property>
+    <!-- sql映射文件路径 -->
+    <property name="mapperLocations" value="classpath*:com/uv/dao/*Mapper.xml"></property>
+  </bean>
+
+  <!--4 自动扫描对象关系映射 -->
+  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+    <!--指定会话工厂，如果当前上下文中只定义了一个则该属性可省去 -->
+    <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+    <!-- 指定要自动扫描接口的基础包，实现接口 -->
+    <property name="basePackage" value="com.uv.dao"></property>
+  </bean>
+
+  <!--5 声明式事务管理 -->
+  <!--定义事物管理器，由spring管理事务 -->
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="datasource"></property>
+  </bean>
+
+  <!--6 容器自动扫描IOC组件  -->
+  <context:component-scan base-package="com.uv"></context:component-scan>
+
+  <!--7 aspectj支持自动代理实现AOP功能 -->
+  <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
+</beans>

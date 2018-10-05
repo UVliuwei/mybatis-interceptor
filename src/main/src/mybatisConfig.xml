@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+  <settings>
+    <!--字段下划线转驼峰-->
+    <setting name="mapUnderscoreToCamelCase" value="true"/>
+    <!--显示sql语句-->
+    <setting name="logImpl" value="STDOUT_LOGGING"/>
+  </settings>
+  <plugins>
+    <plugin interceptor="com.uv.interceptor.MybatisInterceptor">
+      <property name="name" value="test"></property>
+    </plugin>
+  </plugins>
+
+</configuration>
